@@ -37,6 +37,7 @@ class FeedbackControllerTest {
     @MockBean
     FeedbackService feedbackService;
 
+
     @Test
     void injectedIsNotNull() {
         assertThat(mockMvc).isNotNull();
@@ -89,4 +90,5 @@ class FeedbackControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/interview/" + feedbackDTO.getInterviewId()));
     }
+
 }
