@@ -84,7 +84,7 @@ public class InterviewsControllerTest {
         when(wisherService.getAllWisherDtoByInterviewId(token, "")).thenReturn(new ArrayList<>());
         when(wisherService.getInterviewStatistic(new ArrayList<>())).thenReturn(new HashMap<>());
         when(interviewsService.getAll(token, 1, 5)).thenReturn(page);
-        when(interviewsService.getByTopicId(filter.getTopicId(), 1, 5)).thenReturn(page);
+        when(interviewsService.getByTopicIdWithPagination(filter.getTopicId(), 1, 5)).thenReturn(page);
         when(authService.userInfo(token)).thenReturn(userInfo);
         when(profilesService.getProfileById(id)).thenReturn(Optional.of(profile));
         when(categoriesService.getAll()).thenReturn(categories);

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import ru.job4j.site.dto.InterviewDTO;
 import ru.job4j.site.util.RestPageImpl;
 
-import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -35,11 +34,19 @@ public class InterviewsService {
         });
     }
 
-    public Page<InterviewDTO> getByTopicId(int topicId, int page, int size)
+    public List<InterviewDTO> getByTopicId(int topicId) throws JsonProcessingException {
+        var text = new RestAuthCall(String.format("http://localhost:9912/interviews/findByTopicId/%d", topicId)).get();
+        System.out.println("*****This is text from service getByTopicId start***** " + text + " ***** this is text end *****");
+        var mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper.readValue(text, new TypeReference<>() {});
+    }
+
+    public Page<InterviewDTO> getByTopicIdWithPagination(int topicId, int page, int size)
             throws JsonProcessingException {
         var text =
                 new RestAuthCall(String
-                        .format("http://localhost:9912/interviews/findByTopicId/%d?page=%d&?size=%d",
+                        .format("http://localhost:9912/interviews/findByTopicIdWithPagination/%d?page=%d&?size=%d",
                                 topicId, page, size)).get();
         var mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

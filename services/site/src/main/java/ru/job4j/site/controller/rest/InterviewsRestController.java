@@ -38,7 +38,7 @@ public class InterviewsRestController {
             @RequestParam(required = false, defaultValue = "20") int size)
             throws JsonProcessingException {
         return new ResponseEntity<>(
-                interviewsService.getByTopicId(topicId, page, size), HttpStatus.OK
+                interviewsService.getByTopicIdWithPagination(topicId, page, size), HttpStatus.OK
         );
     }
 }

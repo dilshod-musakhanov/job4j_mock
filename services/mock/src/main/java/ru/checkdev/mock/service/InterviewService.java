@@ -65,7 +65,11 @@ public class InterviewService {
                 .collect(Collectors.toList());
     }
 
-    public Page<Interview> findByTopicId(int topicId, int page, int size) {
+    public List<Interview> findByTopicId(int topicId) {
+        return interviewRepository.findByTopicId(topicId);
+    }
+
+    public Page<Interview> findByTopicIdWithPagination(int topicId, int page, int size) {
         return interviewRepository.findByTopicId(topicId, PageRequest.of(page, size));
     }
 

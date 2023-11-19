@@ -40,13 +40,21 @@ public class InterviewsController {
     }
 
     @GetMapping("/findByTopicId/{topicId}")
+    public ResponseEntity<List<Interview>> findByTopicId(
+            @PathVariable int topicId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(interviewService.findByTopicId(topicId));
+    }
+
+    @GetMapping("/findByTopicIdWithPagination/{topicId}")
     public ResponseEntity<Page<Interview>> findByTopicId(
             @PathVariable int topicId,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "20") int size) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(interviewService.findByTopicId(topicId, page, size));
+                .body(interviewService.findByTopicIdWithPagination(topicId, page, size));
     }
 
     @GetMapping("/findByTopicsIds/{tids}")

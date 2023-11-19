@@ -68,7 +68,7 @@ public class InterviewsController {
             if (isFiltered) {
                 topicIdNameDTOS = topicsService.getTopicIdNameDtoByCategory(filter.getCategoryId());
                 interviewsPage = filter.getTopicId() > 0
-                        ? interviewsService.getByTopicId(filter.getTopicId(), page, size)
+                        ? interviewsService.getByTopicIdWithPagination(filter.getTopicId(), page, size)
                         : interviewsService.getByTopicsIds(
                         topicIdNameDTOS.stream().map(TopicIdNameDTO::getId).toList(), page, size);
                 categoryName = categoriesService.getNameById(categories, filter.getCategoryId());
