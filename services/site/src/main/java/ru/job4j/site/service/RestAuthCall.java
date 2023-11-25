@@ -19,9 +19,9 @@ import java.util.Map;
 @Slf4j
 public class RestAuthCall {
     private final String url;
+    private final RestTemplate restTemplate;
 
     public String get() {
-        var restTemplate = new RestTemplate();
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         return restTemplate.exchange(url, HttpMethod.GET,
@@ -31,7 +31,6 @@ public class RestAuthCall {
     }
 
     public String get(String token) {
-        var restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(
                 new DefaultResponseErrorHandler() {
                     @Override
@@ -52,7 +51,6 @@ public class RestAuthCall {
     }
 
     public String token(Map<String, String> params) {
-        var restTemplate = new RestTemplate();
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.set("Authorization", "Basic am9iNGo6cGFzc3dvcmQ=");
@@ -66,7 +64,6 @@ public class RestAuthCall {
     }
 
     public String post(String token, String json) {
-        var restTemplate = new RestTemplate();
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + token);
@@ -76,7 +73,6 @@ public class RestAuthCall {
     }
 
     public void update(String token, String json) {
-        var restTemplate = new RestTemplate();
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + token);
@@ -85,7 +81,6 @@ public class RestAuthCall {
     }
 
     public void delete(String token, String json) {
-        var restTemplate = new RestTemplate();
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + token);
@@ -94,7 +89,6 @@ public class RestAuthCall {
     }
 
     public void put(String token, String json) {
-        var restTemplate = new RestTemplate();
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + token);

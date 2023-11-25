@@ -3,7 +3,9 @@ package ru.job4j.site.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import ru.job4j.site.domain.StatusInterview;
 import ru.job4j.site.domain.StatusWisher;
 import ru.job4j.site.dto.InterviewDTO;
@@ -15,18 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class InterviewService {
     private static final String URL_MOCK = "http://localhost:9912/interview/";
     private final ProfilesService profilesService;
-
-    public InterviewService(ProfilesService profilesService) {
-        this.profilesService = profilesService;
-    }
+    private final RestTemplate restTemplate;
 
     public InterviewDTO create(String token, InterviewDTO interviewDTO) throws JsonProcessingException {
         interviewDTO.setStatus(StatusInterview.IS_NEW.getId());
         var mapper = new ObjectMapper();
-        var out = new RestAuthCall(URL_MOCK).post(
+        var out = new RestAuthCall(URL_MOCK, restTemplate).post(
                 token,
                 mapper.writeValueAsString(interviewDTO)
         );
@@ -34,7 +34,7 @@ public class InterviewService {
     }
 
     public InterviewDTO getById(String token, int id) throws JsonProcessingException {
-        var text = new RestAuthCall(String.format("%s%d", URL_MOCK, id))
+        var text = new RestAuthCall(String.format("%s%d", URL_MOCK, id), restTemplate)
                 .get(token);
         return new ObjectMapper().readValue(text, new TypeReference<>() {
         });
@@ -42,7 +42,7 @@ public class InterviewService {
 
     public void update(String token, InterviewDTO interviewDTO) throws JsonProcessingException {
         var mapper = new ObjectMapper();
-        new RestAuthCall(URL_MOCK).update(
+        new RestAuthCall(URL_MOCK, restTemplate).update(
                 token,
                 mapper.writeValueAsString(interviewDTO));
     }
@@ -55,7 +55,7 @@ public class InterviewService {
      * @param newStatus int New status
      */
     public void updateStatus(String token, int id, int newStatus) {
-        new RestAuthCall(String.format("%sstatus/?id=%d&newStatus=%d", URL_MOCK, id, newStatus))
+        new RestAuthCall(String.format("%sstatus/?id=%d&newStatus=%d", URL_MOCK, id, newStatus), restTemplate)
                 .put(token, "");
     }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import ru.job4j.site.dto.CategoryDTO;
 
 import java.util.List;
@@ -13,16 +14,17 @@ import java.util.List;
 @Service
 public class CategoriesService {
     private final TopicsService topicsService;
+    private final RestTemplate restTemplate;
 
     public List<CategoryDTO> getAll() throws JsonProcessingException {
-        var text = new RestAuthCall("http://localhost:9902/categories/").get();
+        var text = new RestAuthCall("http://localhost:9902/categories/", restTemplate).get();
         var mapper = new ObjectMapper();
         return mapper.readValue(text, new TypeReference<>() {
         });
     }
 
     public List<CategoryDTO> getPopularFromDesc() throws JsonProcessingException {
-        var text = new RestAuthCall("http://localhost:9902/categories/most_pop").get();
+        var text = new RestAuthCall("http://localhost:9902/categories/most_pop", restTemplate).get();
         var mapper = new ObjectMapper();
         return mapper.readValue(text, new TypeReference<>() {
         });
@@ -30,7 +32,7 @@ public class CategoriesService {
 
     public CategoryDTO create(String token, CategoryDTO category) throws JsonProcessingException {
         var mapper = new ObjectMapper();
-        var out = new RestAuthCall("http://localhost:9902/category/").post(
+        var out = new RestAuthCall("http://localhost:9902/category/", restTemplate).post(
                 token,
                 mapper.writeValueAsString(category)
         );
@@ -39,7 +41,7 @@ public class CategoriesService {
 
     public void update(String token, CategoryDTO category) throws JsonProcessingException {
         var mapper = new ObjectMapper();
-        new RestAuthCall("http://localhost:9902/category/").put(
+        new RestAuthCall("http://localhost:9902/category/", restTemplate).put(
                 token,
                 mapper.writeValueAsString(category)
         );
@@ -47,7 +49,7 @@ public class CategoriesService {
 
     public void updateStatistic(String token, int categoryId) throws JsonProcessingException {
         var mapper = new ObjectMapper();
-        new RestAuthCall("http://localhost:9902/category/statistic").put(
+        new RestAuthCall("http://localhost:9902/category/statistic", restTemplate).put(
                 token, mapper.writeValueAsString(categoryId));
     }
 
