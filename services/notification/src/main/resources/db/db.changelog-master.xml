@@ -7,4 +7,9 @@
 
     <include file="changelog/001_ddl_create_table_cd_subscribe_category.xml" relativeToChangelogFile="true"/>
     <include file="changelog/002_ddl_create_table_cd_subscribe_topic.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/003_ddl_create_table_chat_id.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/004_ddl_alter_table_chat_id.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/005_ddl_alter_table_chat_id.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/006_ddl_alter_table_chat_id.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

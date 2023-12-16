@@ -133,13 +133,15 @@ public class PersonService {
         if (find == null) {
             result = Optional.empty();
         } else {
-            String password = RandomStringUtils.randomAlphabetic(8);
+            String password = profile.getPassword();
+            Profile profileWithGeneratedPassword = new Profile(find.getUsername(), find.getEmail(), password);
+            profileWithGeneratedPassword.setPassword(password);
             find.setPassword(this.encoding.encode(password));
             this.persons.save(find);
             Map<String, Object> keys = new HashMap<>();
             keys.put("password", password);
             this.msg.send(new Notify(profile.getEmail(), keys, Notify.Type.FORGOT.name()));
-            result = Optional.of(profile);
+            result = Optional.of(profileWithGeneratedPassword);
         }
         return result;
     }

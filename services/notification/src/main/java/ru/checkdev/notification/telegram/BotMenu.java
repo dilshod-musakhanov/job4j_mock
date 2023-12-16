@@ -2,6 +2,7 @@ package ru.checkdev.notification.telegram;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.checkdev.notification.telegram.action.Action;
@@ -52,6 +53,10 @@ public class BotMenu extends TelegramLongPollingBot {
                 var msg = actions.get(bindingBy.get(chatId)).callback(update.getMessage());
                 bindingBy.remove(chatId);
                 send(msg);
+            } else {
+                var msg = "Команда не поддерживается! Список доступных команд: /start";
+                SendMessage errorMessage = new SendMessage(update.getMessage().getChatId().toString(), msg);
+                send(errorMessage);
             }
         }
     }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="03" author="Дильшод Мусаханов">
+        <createTable tableName="chat_id">
+            <column autoIncrement="true" name="id" type="int">
+                <constraints unique="true" nullable="false" primaryKey="true"/>
+            </column>
+            <column name="chatId" type="int"/>
+            <column name="profileId" type="int"/>
+            <column name="username" type="varchar(2000)"/>
+            <column name="email" type="varchar(2000)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

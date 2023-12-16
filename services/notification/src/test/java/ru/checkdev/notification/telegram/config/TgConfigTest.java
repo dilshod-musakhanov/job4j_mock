@@ -46,10 +46,24 @@ class TgConfigTest {
 
     @Test
     void whenGetObjectToMapThenReturnObjectMap() {
-        var personDto = new PersonDTO("mail", "pass", true, null, Calendar.getInstance());
+        var personDto = new PersonDTO("username", "mail", "pass", true, null, Calendar.getInstance());
         var map = tgConfig.getObjectToMap(personDto);
+        assertThat(map.get("username")).isEqualTo(personDto.getUsername());
         assertThat(map.get("email")).isEqualTo(personDto.getEmail());
         assertThat(map.get("password")).isEqualTo(personDto.getPassword());
         assertThat(String.valueOf(map.get("privacy"))).isEqualTo(String.valueOf(true));
+    }
+    @Test
+    void whenCredentialsMissingHashtagThenReturnErrorMap() {
+        var invalidUsernameAndEmail = "john_doe";
+        var result = tgConfig.credentials(invalidUsernameAndEmail);
+        assertThat(result).containsEntry("error", "Ошибка! Отсутствует хэштег.");
+    }
+
+    @Test
+    void whenCredentialsInvalidFormatThenReturnErrorMap() {
+        var invalidUsernameAndEmail = "john_doe#john.doe@example.com#extra";
+        var result = tgConfig.credentials(invalidUsernameAndEmail);
+        assertThat(result).containsEntry("error", "Ошибка! Имя пользователя или Email отсутствуют или содержит более одного символа #.");
     }
 }
