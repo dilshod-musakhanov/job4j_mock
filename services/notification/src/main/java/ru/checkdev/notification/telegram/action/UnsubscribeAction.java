@@ -4,16 +4,15 @@ import lombok.AllArgsConstructor;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import ru.checkdev.notification.domain.SubscribeCategory;
+import ru.checkdev.notification.service.SubscribeCategoryService;
 import ru.checkdev.notification.telegram.service.ChatIdService;
 
-/**
- * Класс реализует пункт меню проверки существующего пользователя в телеграм бот
- * @author Дильшод Мусаханов
- * @since 12.11.2023
- */
-@AllArgsConstructor
-public class CheckAction implements Action {
 
+@AllArgsConstructor
+public class UnsubscribeAction implements Action {
+
+    private final SubscribeCategoryService subscribeCategoryService;
     private final ChatIdService chatIdService;
 
     @Override
@@ -26,14 +25,15 @@ public class CheckAction implements Action {
                     + "/start";
             return new SendMessage(chatId, text);
         }
-        var username = chatIdOptional.get().getUsername();
-        var email = chatIdOptional.get().getEmail();
-        var text = String.format("Имя пользователя: %s\nЛогин: %s", username, email);
+
+        /** TODO */
+
+        var text = "Вы отписались от уведомлений";
         return new SendMessage(chatId, text);
     }
 
     @Override
     public BotApiMethod<Message> callback(Message message) {
-        return handle(message);
+        return null;
     }
 }

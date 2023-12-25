@@ -53,17 +53,18 @@ class TgConfigTest {
         assertThat(map.get("password")).isEqualTo(personDto.getPassword());
         assertThat(String.valueOf(map.get("privacy"))).isEqualTo(String.valueOf(true));
     }
+
     @Test
-    void whenCredentialsMissingHashtagThenReturnErrorMap() {
-        var invalidUsernameAndEmail = "john_doe";
-        var result = tgConfig.credentials(invalidUsernameAndEmail);
-        assertThat(result).containsEntry("error", "Ошибка! Отсутствует хэштег.");
+    void whenUsernameIsShortThenReturnErrorMap() {
+        var username = "j";
+        var result = tgConfig.checkUsername(username);
+        assertThat(result).containsEntry("error", "Ошибка! Имя пользователя должно содержать 2 или более символов.");
     }
 
     @Test
-    void whenCredentialsInvalidFormatThenReturnErrorMap() {
-        var invalidUsernameAndEmail = "john_doe#john.doe@example.com#extra";
-        var result = tgConfig.credentials(invalidUsernameAndEmail);
-        assertThat(result).containsEntry("error", "Ошибка! Имя пользователя или Email отсутствуют или содержит более одного символа #.");
+    void whenUsernameIsEmailThenReturnErrorMap() {
+        var username = "mail@mail.ru";
+        var result = tgConfig.checkUsername(username);
+        assertThat(result).containsEntry("error", "Ошибка! Ввели еmail вместо имя пользователя.");
     }
 }

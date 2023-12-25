@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -20,13 +22,14 @@ import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Дильшод Мусаханов
  * @since 12.12.2023
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class RegActionTest {
 
     @Mock
@@ -41,6 +44,7 @@ class RegActionTest {
     @InjectMocks
     private RegAction regAction;
 
+
     @Test
     public void whenHandleShouldReturnInitialMessage() {
         String chatId = "123456";
@@ -48,55 +52,55 @@ class RegActionTest {
         BotApiMethod<Message> result = regAction.handle(message);
         assertThat(result).isInstanceOf(SendMessage.class);
         SendMessage sendMessage = (SendMessage) result;
-        assertThat(sendMessage.getText()).contains("Для регистрации введите имя пользователя и email разделенные хэштегом '#' без пробела.");
+        assertThat(sendMessage.getText()).contains("Для регистрации введите имя пользователя:");
 
     }
 
     @Test
     public void whenChatIdAlreadyRegisteredThenReturnErrorMessage() {
         String chatId = "123456";
-        String profileId = "1";
-        String username = "username";
-        String email = "email@email.com";
-        ChatId chatIdObj = new ChatId(chatId, profileId, username, email);
-        when(chatIdService.findByChatId(chatId)).thenReturn(Optional.of(chatIdObj));
+        when(chatIdService.isCompleted(chatId)).thenReturn(true);
         Message message = createMockMessage(chatId);
-        BotApiMethod<Message> result = regAction.callback(message);
+        BotApiMethod<Message> result = regAction.handle(message);
         Assertions.assertThat(result).isInstanceOf(SendMessage.class);
         SendMessage sendMessage = (SendMessage) result;
         assertThat(sendMessage.getText()).contains("Ошибка регистрации. Регистрация по данному аккаунту Telegram уже существует");
-
     }
 
     @Test
-    public void whenInvalidCredentialProvidedThenReturnErrorMessage() {
+    public void whenRegisteredSuccessfully() {
         String chatId = "123456";
-        Message message = createMockMessage(chatId);
-        when(authCallWebClint.doPost(any(), any())).thenThrow(new RuntimeException("Service unavailable"));
-        BotApiMethod<Message> result = regAction.callback(message);
-        Assertions.assertThat(result).isInstanceOf(SendMessage.class);
-        SendMessage sendMessage = (SendMessage) result;
-        assertThat(sendMessage.getText()).contains("Сервис не доступен");
-    }
+        String username = "testUsername";
+        ChatId chatIdWithUsername = new ChatId();
+        chatIdWithUsername.setChatId(chatId);
+        chatIdWithUsername.setUsername(username);
 
-    @Test
-    void whenReturnSuccessMessageOnSuccessfulRegistration() {
-        String chatId = "123456";
         Message message = createMockMessage(chatId);
-        when(chatIdService.findByChatId(chatId)).thenReturn(Optional.empty());
-        when(tgConfig.credentials(any())).thenReturn(Collections.emptyMap());
-        Map<String, Object> mockPersonDetails = new HashMap<>();
-        mockPersonDetails.put("id", "1");
-        Map<String, Object> mockResult = new HashMap<>();
-        mockResult.put("ok", "ok");
-        mockResult.put("person", mockPersonDetails);
-        when(authCallWebClint.doPost(any(), any())).thenReturn(Mono.just(mockResult));
-        when(tgConfig.getObjectToMap(mockResult)).thenReturn(Collections.emptyMap());
-        when(chatIdService.save(any())).thenReturn(Optional.of(new ChatId()));
+        when(chatIdService.isCompleted(chatId)).thenReturn(false);
+        when(chatIdService.hasUsername(chatId)).thenReturn(false);
+
+        when(tgConfig.checkUsername(any())).thenReturn(Collections.singletonMap("username", "testUsername"));
+        when(chatIdService.findByChatId(chatId)).thenReturn(Optional.of(new ChatId()));
+        when(chatIdService.isCompleted(chatId)).thenReturn(false);
+        when(chatIdService.hasUsername(chatId)).thenReturn(true);
+
+        when(tgConfig.checkUsername(any())).thenReturn(Collections.singletonMap("username", "testUsername"));
+        when(tgConfig.checkEmail(any())).thenReturn(Map.of("email", "test@example.com"));
+        when(chatIdService.findByChatId(chatId)).thenReturn(Optional.of(new ChatId()));
+        when(authCallWebClint.doPost(any(), any())).thenReturn(createMockSuccessResponse());
+        when(tgConfig.getPassword()).thenReturn("testPassword");
+        when(chatIdService.findByChatId(chatId)).thenReturn(Optional.of(chatIdWithUsername));
+
         BotApiMethod<Message> result = regAction.callback(message);
-        assertThat(result).isInstanceOf(SendMessage.class);
+        var sl = System.lineSeparator();
         SendMessage sendMessage = (SendMessage) result;
-        assertThat(sendMessage.getText()).contains("Вы зарегистрированы");
+        String expectedText = "Вы зарегистрированы: " + sl
+                + "Имя пользователя: testUsername" + sl
+                + "Логин: test@example.com" + sl
+                + "Пароль: testPassword" + sl
+                + "null";
+        String actualText = sendMessage.getText().replaceAll("\\r\\n|\\r|\\n", sl);
+        assertThat(actualText).isEqualTo(expectedText);
     }
 
     private Message createMockMessage(String chatId) {
@@ -104,8 +108,17 @@ class RegActionTest {
         Chat chatObj = new Chat();
         chatObj.setId(Long.valueOf(chatId));
         message.setChat(chatObj);
-        message.setText("username#example@example.com");
+        message.setText("Test message");
         return message;
     }
 
+
+    private Mono<Object> createMockSuccessResponse() {
+        return Mono.just(Map.of(
+                "person", Map.of(
+                        "id", "123",
+                        "username", "testUsername"
+                )
+        ));
+    }
 }

@@ -1,12 +1,13 @@
 package ru.checkdev.notification.telegram;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import ru.checkdev.notification.service.SubscribeCategoryService;
 import ru.checkdev.notification.telegram.action.*;
 import ru.checkdev.notification.telegram.config.TgConfig;
 import ru.checkdev.notification.telegram.service.ChatIdService;
@@ -31,6 +32,8 @@ public class TgRun {
     private final TgAuthCallWebClint tgAuthCallWebClint;
     private final ChatIdService chatIdService;
     private final TgConfig tgConfig;
+    private final RegAction regAction;
+    private final SubscribeCategoryService subscribeCategoryService;
     @Value("${tg.username}")
     private String username;
     @Value("${tg.token}")
@@ -38,10 +41,18 @@ public class TgRun {
     @Value("${server.site.url.login}")
     private String urlSiteAuth;
 
-    public TgRun(TgAuthCallWebClint tgAuthCallWebClint, ChatIdService chatIdService, TgConfig tgConfig) {
+    @Autowired
+    public TgRun(
+            TgAuthCallWebClint tgAuthCallWebClint,
+            ChatIdService chatIdService,
+            TgConfig tgConfig,
+            RegAction regAction,
+            SubscribeCategoryService subscribeCategoryService) {
         this.tgAuthCallWebClint = tgAuthCallWebClint;
         this.chatIdService = chatIdService;
         this.tgConfig = tgConfig;
+        this.regAction = regAction;
+        this.subscribeCategoryService = subscribeCategoryService;
     }
 
     @PostConstruct
@@ -51,10 +62,12 @@ public class TgRun {
                         "/start", "/new", "/check", "/forget", "/subscribe", "/unsubscribe")),
                 "/new", new RegAction(tgConfig, tgAuthCallWebClint, chatIdService, urlSiteAuth),
                 "/check", new CheckAction(chatIdService),
-                "/forget", new ForgetAction(tgConfig, tgAuthCallWebClint, chatIdService)
+                "/forget", new ForgetAction(tgConfig, tgAuthCallWebClint, chatIdService),
+                "/subscribe", new SubscribeAction(subscribeCategoryService, chatIdService, tgAuthCallWebClint),
+                "/unsubscribe", new UnsubscribeAction(subscribeCategoryService, chatIdService)
         );
         try {
-            BotMenu menu = new BotMenu(actionMap, username, token);
+            BotMenu menu = new BotMenu(actionMap, username, token, regAction, chatIdService);
 
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
             botsApi.registerBot(menu);

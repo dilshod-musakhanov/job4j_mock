@@ -33,11 +33,14 @@ class CheckActionTest {
     @Test
     void whenUserNotRegistered() {
         String chatId = "123456";
+        var sl = System.lineSeparator();
         when(chatIdService.findByChatId(chatId)).thenReturn(Optional.empty());
         BotApiMethod<Message> result = checkAction.handle(createMockMessage(chatId));
         assertThat(result).isInstanceOf(SendMessage.class);
         SendMessage sendMessage = (SendMessage) result;
-        assertThat(sendMessage.getText()).isEqualTo("Данный аккаунт Telegram на сайте не зарегистрирован");
+        var text = "Данный аккаунт Telegram на сайте не зарегистрирован" + sl
+                + "/start";
+        assertThat(sendMessage.getText()).isEqualTo(text);
     }
 
     @Test
@@ -46,7 +49,8 @@ class CheckActionTest {
         String profileId = "1";
         String username = "username";
         String email = "email@email.com";
-        ChatId chatIdObj = new ChatId(chatId, profileId, username, email);
+        Boolean completed = false;
+        ChatId chatIdObj = new ChatId(chatId, profileId, username, email, completed);
         when(chatIdService.findByChatId(chatId)).thenReturn(Optional.of(chatIdObj));
         BotApiMethod<Message> result = checkAction.handle(createMockMessage(chatId));
         assertThat(result).isInstanceOf(SendMessage.class);

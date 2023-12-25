@@ -5,7 +5,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import ru.checkdev.notification.domain.CategoryDTO;
 import ru.checkdev.notification.domain.PersonDTO;
+
+import java.util.List;
 
 /**
  * 3. Мидл
@@ -35,6 +38,17 @@ public class TgAuthCallWebClint {
                 .uri(url)
                 .retrieve()
                 .bodyToMono(PersonDTO.class)
+                .doOnError(err -> log.error("API not found: {}", err.getMessage()));
+    }
+
+
+    public Mono<List<CategoryDTO>> doGetCategories(String url) {
+        return webClient
+                .get()
+                .uri(url)
+                .retrieve()
+                .bodyToFlux(CategoryDTO.class)
+                .collectList()
                 .doOnError(err -> log.error("API not found: {}", err.getMessage()));
     }
 

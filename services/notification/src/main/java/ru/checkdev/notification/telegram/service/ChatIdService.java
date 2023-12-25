@@ -28,4 +28,29 @@ public class ChatIdService {
         ChatId result = this.chatIdRepository.findByChatId(chatId);
         return Optional.ofNullable(result);
     }
+
+    public boolean isCompleted(String chatId) {
+        ChatId result = this.chatIdRepository.findByChatId(chatId);
+        if (result == null) {
+            return false;
+        }
+        return result.isCompleted();
+    }
+
+    public boolean hasUsername(String chatId) {
+        ChatId result = this.chatIdRepository.findByChatId(chatId);
+        if (result == null) {
+            return false;
+        }
+        return result.getUsername() != null;
+    }
+
+    public void delete(String chatId) {
+        Optional<ChatId> chatIdObj = findByChatId(chatId);
+        chatIdRepository.delete(chatIdObj.get());
+    }
+
+    public boolean isPresent(String chatId) {
+        return findByChatId(chatId).isPresent();
+    }
 }

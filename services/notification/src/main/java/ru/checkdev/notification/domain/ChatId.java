@@ -1,5 +1,6 @@
 package ru.checkdev.notification.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import javax.persistence.*;
  */
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "chat_id")
 public class ChatId {
 
@@ -28,10 +30,13 @@ public class ChatId {
 
     private String email;
 
-    public ChatId(String chatId, String profileId, String username, String email) {
+    private boolean completed;
+
+    public ChatId(String chatId, String profileId, String username, String email, Boolean completed) {
         this.chatId = chatId;
         this.profileId = profileId;
         this.username = username;
         this.email = email;
+        this.completed = completed;
     }
 }
