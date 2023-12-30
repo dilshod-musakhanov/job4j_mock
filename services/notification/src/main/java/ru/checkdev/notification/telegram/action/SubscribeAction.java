@@ -10,6 +10,7 @@ import ru.checkdev.notification.domain.SubscribeCategory;
 import ru.checkdev.notification.service.SubscribeCategoryService;
 import ru.checkdev.notification.telegram.service.ChatIdService;
 import ru.checkdev.notification.telegram.service.TgAuthCallWebClint;
+import ru.checkdev.notification.telegram.service.TgCategoryCallWebClient;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -19,10 +20,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SubscribeAction implements Action {
 
-    private static final String URL_CATEGORIES = "/categories";
+    private static final String URL_CATEGORIES = "/categories/";
     private final SubscribeCategoryService subscribeCategoryService;
     private final ChatIdService chatIdService;
-    private final TgAuthCallWebClint tgAuthCallWebClint;
+    private final TgCategoryCallWebClient tgCategoryCallWebClient;
 
     @Override
     public BotApiMethod<Message> handle(Message message) {
@@ -36,7 +37,7 @@ public class SubscribeAction implements Action {
         }
         Object result;
         try {
-            result = tgAuthCallWebClint.doGetCategories(URL_CATEGORIES).block();
+            result = tgCategoryCallWebClient.doGetCategories(URL_CATEGORIES).block();
         } catch (Exception e) {
             log.error("WebClient doPost error: {}", e.getMessage());
             var text = "Сервис не доступен попробуйте позже" + sl

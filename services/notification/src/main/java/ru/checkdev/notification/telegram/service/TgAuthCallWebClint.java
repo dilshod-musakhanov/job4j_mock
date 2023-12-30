@@ -41,17 +41,6 @@ public class TgAuthCallWebClint {
                 .doOnError(err -> log.error("API not found: {}", err.getMessage()));
     }
 
-
-    public Mono<List<CategoryDTO>> doGetCategories(String url) {
-        return webClient
-                .get()
-                .uri(url)
-                .retrieve()
-                .bodyToFlux(CategoryDTO.class)
-                .collectList()
-                .doOnError(err -> log.error("API not found: {}", err.getMessage()));
-    }
-
     /**
      * Метод POST
      *

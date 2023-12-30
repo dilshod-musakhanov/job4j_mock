@@ -12,6 +12,7 @@ import ru.checkdev.notification.telegram.action.*;
 import ru.checkdev.notification.telegram.config.TgConfig;
 import ru.checkdev.notification.telegram.service.ChatIdService;
 import ru.checkdev.notification.telegram.service.TgAuthCallWebClint;
+import ru.checkdev.notification.telegram.service.TgCategoryCallWebClient;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.Map;
 @Slf4j
 public class TgRun {
     private final TgAuthCallWebClint tgAuthCallWebClint;
+    private final TgCategoryCallWebClient tgCategoryCallWebClient;
     private final ChatIdService chatIdService;
     private final TgConfig tgConfig;
     private final RegAction regAction;
@@ -44,11 +46,13 @@ public class TgRun {
     @Autowired
     public TgRun(
             TgAuthCallWebClint tgAuthCallWebClint,
+            TgCategoryCallWebClient tgCategoryCallWebClient,
             ChatIdService chatIdService,
             TgConfig tgConfig,
             RegAction regAction,
             SubscribeCategoryService subscribeCategoryService) {
         this.tgAuthCallWebClint = tgAuthCallWebClint;
+        this.tgCategoryCallWebClient = tgCategoryCallWebClient;
         this.chatIdService = chatIdService;
         this.tgConfig = tgConfig;
         this.regAction = regAction;
@@ -63,7 +67,7 @@ public class TgRun {
                 "/new", new RegAction(tgConfig, tgAuthCallWebClint, chatIdService, urlSiteAuth),
                 "/check", new CheckAction(chatIdService),
                 "/forget", new ForgetAction(tgConfig, tgAuthCallWebClint, chatIdService),
-                "/subscribe", new SubscribeAction(subscribeCategoryService, chatIdService, tgAuthCallWebClint),
+                "/subscribe", new SubscribeAction(subscribeCategoryService, chatIdService, tgCategoryCallWebClient),
                 "/unsubscribe", new UnsubscribeAction(subscribeCategoryService, chatIdService)
         );
         try {
