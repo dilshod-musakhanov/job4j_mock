@@ -32,11 +32,14 @@ public class ChatId {
 
     private boolean completed;
 
-    public ChatId(String chatId, String profileId, String username, String email, Boolean completed) {
+    private boolean notify;
+
+    public ChatId(String chatId, String profileId, String username, String email, Boolean completed, Boolean notify) {
         this.chatId = chatId;
         this.profileId = profileId;
         this.username = username;
         this.email = email;
         this.completed = completed;
+        this.notify = notify;
     }
 }

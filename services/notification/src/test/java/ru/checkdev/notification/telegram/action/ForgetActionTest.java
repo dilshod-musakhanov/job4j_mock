@@ -66,7 +66,7 @@ class ForgetActionTest {
         String email = "email@email.com";
         String password = "newPassword";
         Boolean completed = false;
-        ChatId chatIdObj = new ChatId(chatId, profileId, username, email, false);
+        ChatId chatIdObj = new ChatId(chatId, profileId, username, email, false, false);
         PersonDTO expectedPerson = new PersonDTO(
                 username, email, password, true, null, Calendar.getInstance()
         );

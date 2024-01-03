@@ -27,7 +27,7 @@ class ChatIdServiceTest {
 
     @Test
     public void whenSaveChatIdSuccessfully() {
-        ChatId chatId = new ChatId("123456", "1", "username", "email@email.com", false);
+        ChatId chatId = new ChatId("123456", "1", "username", "email@email.com", false, false);
         when(chatIdRepository.save(chatId)).thenReturn(chatId);
         Optional<ChatId> savedChatId = chatIdService.save(chatId);
         assertThat(savedChatId).isPresent();
@@ -37,7 +37,7 @@ class ChatIdServiceTest {
 
     @Test
     void whenFindByChatIdExists() {
-        ChatId chatId = new ChatId("123456", "1", "username", "email@email.com", false);
+        ChatId chatId = new ChatId("123456", "1", "username", "email@email.com", false, false);
         when(chatIdRepository.findByChatId(chatId.getChatId())).thenReturn(chatId);
         Optional<ChatId> savedChatId = chatIdService.findByChatId(chatId.getChatId());
         assertThat(savedChatId).isPresent();
@@ -56,7 +56,7 @@ class ChatIdServiceTest {
     @Test
     void whenIsCompletedTrue() {
         String chatId = "123456";
-        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", true);
+        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", true, false);
         when(chatIdRepository.findByChatId(chatId)).thenReturn(chatIdObj);
 
         boolean result = chatIdService.isCompleted(chatId);
@@ -68,7 +68,7 @@ class ChatIdServiceTest {
     @Test
     void whenIsCompletedFalse() {
         String chatId = "123456";
-        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", false);
+        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", false, false);
         when(chatIdRepository.findByChatId(chatId)).thenReturn(chatIdObj);
 
         boolean result = chatIdService.isCompleted(chatId);
@@ -80,7 +80,7 @@ class ChatIdServiceTest {
     @Test
     void whenHasUsernameTrue() {
         String chatId = "123456";
-        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", false);
+        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", false, false);
         when(chatIdRepository.findByChatId(chatId)).thenReturn(chatIdObj);
 
         boolean result = chatIdService.hasUsername(chatId);
@@ -92,7 +92,7 @@ class ChatIdServiceTest {
     @Test
     void whenHasUsernameFalse() {
         String chatId = "123456";
-        ChatId chatIdObj = new ChatId(chatId, "1", null, "email@email.com", false);
+        ChatId chatIdObj = new ChatId(chatId, "1", null, "email@email.com", false, false);
         when(chatIdRepository.findByChatId(chatId)).thenReturn(chatIdObj);
 
         boolean result = chatIdService.hasUsername(chatId);
@@ -104,7 +104,7 @@ class ChatIdServiceTest {
     @Test
     void whenDeleteChatId() {
         String chatId = "123456";
-        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", false);
+        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", false, false);
         when(chatIdRepository.findByChatId(chatId)).thenReturn(chatIdObj);
 
         chatIdService.delete(chatId);
@@ -115,7 +115,7 @@ class ChatIdServiceTest {
     @Test
     void whenIsPresentTrue() {
         String chatId = "123456";
-        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", false);
+        ChatId chatIdObj = new ChatId(chatId, "1", "username", "email@email.com", false, false);
         when(chatIdRepository.findByChatId(chatId)).thenReturn(chatIdObj);
 
         boolean result = chatIdService.isPresent(chatId);

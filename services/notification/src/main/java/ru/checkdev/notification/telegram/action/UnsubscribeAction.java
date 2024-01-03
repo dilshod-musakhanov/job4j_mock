@@ -4,15 +4,12 @@ import lombok.AllArgsConstructor;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.checkdev.notification.domain.SubscribeCategory;
-import ru.checkdev.notification.service.SubscribeCategoryService;
 import ru.checkdev.notification.telegram.service.ChatIdService;
 
 
 @AllArgsConstructor
 public class UnsubscribeAction implements Action {
 
-    private final SubscribeCategoryService subscribeCategoryService;
     private final ChatIdService chatIdService;
 
     @Override
@@ -25,9 +22,9 @@ public class UnsubscribeAction implements Action {
                     + "/start";
             return new SendMessage(chatId, text);
         }
-
-        /** TODO */
-
+        var existingChatId = chatIdOptional.get();
+        existingChatId.setNotify(false);
+        chatIdService.save(existingChatId);
         var text = "Вы отписались от уведомлений";
         return new SendMessage(chatId, text);
     }

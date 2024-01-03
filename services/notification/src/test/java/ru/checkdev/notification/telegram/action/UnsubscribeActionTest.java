@@ -15,49 +15,39 @@ import ru.checkdev.notification.telegram.service.ChatIdService;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Дильшод Мусаханов
- * @since 12.12.2023
+ * @since 3.1.2024
  */
 @ExtendWith(MockitoExtension.class)
-class CheckActionTest {
+class UnsubscribeActionTest {
 
     @Mock
     private ChatIdService chatIdService;
 
     @InjectMocks
-    private CheckAction checkAction;
+    private UnsubscribeAction unsubscribeAction;
 
     @Test
-    void whenUserNotRegistered() {
-        String chatId = "123456";
-        var sl = System.lineSeparator();
-        when(chatIdService.findByChatId(chatId)).thenReturn(Optional.empty());
-        BotApiMethod<Message> result = checkAction.handle(createMockMessage(chatId));
-        assertThat(result).isInstanceOf(SendMessage.class);
-        SendMessage sendMessage = (SendMessage) result;
-        var text = "Данный аккаунт Telegram на сайте не зарегистрирован" + sl
-                + "/start";
-        assertThat(sendMessage.getText()).isEqualTo(text);
-    }
-
-    @Test
-    void whenUserRegistered() {
+    void whenUnsubscribeThenNotifySetFalse() {
         String chatId = "123456";
         String profileId = "1";
         String username = "username";
         String email = "email@email.com";
         Boolean completed = false;
-        Boolean notify = false;
+        Boolean notify = true;
         ChatId chatIdObj = new ChatId(chatId, profileId, username, email, completed, notify);
         when(chatIdService.findByChatId(chatId)).thenReturn(Optional.of(chatIdObj));
-        BotApiMethod<Message> result = checkAction.handle(createMockMessage(chatId));
-        assertThat(result).isInstanceOf(SendMessage.class);
+        BotApiMethod<Message> result = unsubscribeAction.handle(createMockMessage(chatId));
         SendMessage sendMessage = (SendMessage) result;
-        String expectedText = String.format("Имя пользователя: %s\nЛогин: %s", username, email);
+        assertThat(result).isInstanceOf(SendMessage.class);
+        String expectedText = "Вы отписались от уведомлений";
         assertThat(sendMessage.getText()).isEqualTo(expectedText);
+        verify(chatIdService, times(1)).save(argThat(savedChatIdObj ->
+                !savedChatIdObj.isNotify() && savedChatIdObj.getChatId().equals(chatId)
+        ));
     }
 
     private Message createMockMessage(String chatId) {
