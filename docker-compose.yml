@@ -1,0 +1,137 @@
+version: '3.9'
+
+services:
+  auth-db:
+    image: postgres
+    container_name: auth-db
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=cd_auth
+    volumes:
+      - ./services/auth/db:/var/lib/postgresql/data
+    restart: always
+
+  auth:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    ports:
+      - "9900:9900"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/cd_auth
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_DRIVER=org.postgresql.Driver
+    container_name: auth
+    depends_on:
+      - auth-db
+
+  desc-db:
+    image: postgres
+    container_name: desc-db
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=cd_desc
+    volumes:
+      - ./services/desc/db:/var/lib/postgresql/data
+    restart: always
+
+  desc:
+    build:
+      context: ./services/desc
+      dockerfile: Dockerfile
+    ports:
+      - "9902:9902"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://desc-db:5432/cd_desc
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_DRIVER=org.postgresql.Driver
+    container_name: desc
+    depends_on:
+      - auth-db
+      - desc-db
+
+  mock-db:
+    image: postgres
+    container_name: mock-db
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=mock
+    volumes:
+      - ./services/mock/db:/var/lib/postgresql/data
+    restart: always
+
+  mock:
+    build:
+      context: ./services/mock
+      dockerfile: Dockerfile
+    ports:
+      - "9912:9912"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://mock-db:5432/mock
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_DRIVER=org.postgresql.Driver
+    container_name: mock
+    depends_on:
+      - auth-db
+      - mock-db
+
+  notification-db:
+    image: postgres
+    container_name: notification-db
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=cd_notification
+    volumes:
+      - ./services/notification/db:/var/lib/postgresql/data
+    restart: always
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  notification:
+    build:
+      context: ./services/notification
+      dockerfile: Dockerfile
+    ports:
+      - "9920:9920"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://notification-db:5432/cd_notification
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_DRIVER=org.postgresql.Driver
+    container_name: notification
+    depends_on:
+      - auth-db
+      - notification-db
+      - kafka
+
+  site:
+    build:
+      context: ./services/site
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    container_name: site
+    depends_on:
+      - auth
+      - desc
+      - mock
+      - notification
